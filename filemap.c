@@ -17,9 +17,11 @@ static const char *get_lotus_runtimefile(const char *file)
 
     // Cache this path so it only has to be looked up once.
     if (lotusdir == NULL) {
-        if (readlink("/proc/self/exe", exepath, PATH_MAX) == -1) {
+        ssize_t len = readlink("/proc/self/exe", exepath, PATH_MAX - 1);
+        if (len == -1) {
             err(EXIT_FAILURE, "Failed to determine the lotus root directory");
         }
+        exepath[len] = '\0';
         // Figure out the containing directory from the exe path.
         exedir = dirname(exepath);
         snprintf(localpath, PATH_MAX, "%s/%s", exedir, "../share/lotus");
